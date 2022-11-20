@@ -28,7 +28,7 @@
     </div>
 
     <script>
-      const randomPlayerId = 'playerWHOO' + Date.now();
+      const randomPlayerId = 'player' + Date.now();
       document.getElementById('player').id = randomPlayerId;
 
       const parsedUrl = new URL(window.location.href);
@@ -129,6 +129,32 @@
         sendMessageToRN({eventType: 'playerStateChange', data: event.data});
       }
 
+      const video = document.getElementById(randomPlayerId);
+      //function to be run when full screen is closed
+      function videoExitedFullscreen(videoElement){
+
+        //check if an element is currently full screen
+        if(document.fullScreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement ){
+
+          sendMessageToRN({
+            eventType: 'fullScreenChange',
+            data: true,
+          });
+
+        } else {
+          console.log('fullscreen was closed');
+
+          sendMessageToRN({
+            eventType: 'fullScreenChange',
+            data: false,
+          });
+        }
+      }
+
+      video.addEventListener("webkitendfullscreen", function(){
+        videoExitedFullscreen(video);
+      }, false);
+
       var isFullScreen = false;
       function onFullScreenChange() {
         isFullScreen =
@@ -137,6 +163,7 @@
           document.mozFullScreenElement ||
           document.webkitFullscreenElement;
 
+        console.log(isFullScreen);
         sendMessageToRN({
           eventType: 'fullScreenChange',
           data: Boolean(isFullScreen),
